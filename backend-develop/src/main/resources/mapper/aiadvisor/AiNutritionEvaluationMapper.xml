@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yumyumcoach.domain.aiadvisor.mapper.AiNutritionEvaluationMapper">
+
+    <resultMap id="NutritionEvaluationResult" type="com.yumyumcoach.domain.aiadvisor.entity.AiNutritionEvaluation">
+        <id column="id" property="id" />
+        <result column="email" property="email" />
+        <result column="reference_date" property="referenceDate" />
+        <result column="week_start_date" property="weekStartDate" />
+        <result column="week_end_date" property="weekEndDate" />
+        <result column="carbohydrate_status" property="carbohydrateStatus" />
+        <result column="protein_status" property="proteinStatus" />
+        <result column="fat_status" property="fatStatus" />
+        <result column="calorie_status" property="calorieStatus" />
+        <result column="analysis_summary" property="analysisSummary" />
+        <result column="model_used" property="modelUsed" />
+        <result column="created_at" property="createdAt" />
+    </resultMap>
+
+    <select id="selectByEmailAndReferenceDate" parameterType="map" resultMap="NutritionEvaluationResult">
+        SELECT *
+        FROM ai_nutrition_evaluations
+        WHERE email = #{email}
+          AND reference_date = #{referenceDate}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="map" useGeneratedKeys="true" keyProperty="evaluation.id">
+        INSERT INTO ai_nutrition_evaluations (
+            email, reference_date, week_start_date, week_end_date,
+            carbohydrate_status, protein_status, fat_status, calorie_status,
+            analysis_summary, model_used, created_at
+        ) VALUES (
+            #{evaluation.email}, #{evaluation.referenceDate}, #{evaluation.weekStartDate}, #{evaluation.weekEndDate},
+            #{evaluation.carbohydrateStatus}, #{evaluation.proteinStatus}, #{evaluation.fatStatus}, #{evaluation.calorieStatus},
+            #{evaluation.analysisSummary}, #{evaluation.modelUsed}, #{evaluation.createdAt}
+        )
+    </insert>
+</mapper>

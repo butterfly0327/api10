@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yumyumcoach.domain.aiadvisor.mapper.AiMealPlanMapper">
+
+    <resultMap id="MealPlanResult" type="com.yumyumcoach.domain.aiadvisor.entity.AiMealPlan">
+        <id column="id" property="id" />
+        <result column="email" property="email" />
+        <result column="plan_date" property="planDate" />
+        <result column="breakfast_menu" property="breakfastMenu" />
+        <result column="lunch_menu" property="lunchMenu" />
+        <result column="dinner_menu" property="dinnerMenu" />
+        <result column="breakfast_calories" property="breakfastCalories" />
+        <result column="lunch_calories" property="lunchCalories" />
+        <result column="dinner_calories" property="dinnerCalories" />
+        <result column="breakfast_note" property="breakfastNote" />
+        <result column="lunch_note" property="lunchNote" />
+        <result column="dinner_note" property="dinnerNote" />
+        <result column="total_calories" property="totalCalories" />
+        <result column="model_used" property="modelUsed" />
+        <result column="created_at" property="createdAt" />
+    </resultMap>
+
+    <select id="selectByEmailAndDate" parameterType="map" resultMap="MealPlanResult">
+        SELECT *
+        FROM ai_meal_plans
+        WHERE email = #{email}
+          AND plan_date = #{planDate}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="map" useGeneratedKeys="true" keyProperty="plan.id">
+        INSERT INTO ai_meal_plans (
+            email, plan_date, breakfast_menu, lunch_menu, dinner_menu,
+            breakfast_calories, lunch_calories, dinner_calories,
+            breakfast_note, lunch_note, dinner_note,
+            total_calories, model_used, created_at
+        ) VALUES (
+            #{plan.email}, #{plan.planDate}, #{plan.breakfastMenu}, #{plan.lunchMenu}, #{plan.dinnerMenu},
+            #{plan.breakfastCalories}, #{plan.lunchCalories}, #{plan.dinnerCalories},
+            #{plan.breakfastNote}, #{plan.lunchNote}, #{plan.dinnerNote},
+            #{plan.totalCalories}, #{plan.modelUsed}, #{plan.createdAt}
+        )
+    </insert>
+</mapper>
