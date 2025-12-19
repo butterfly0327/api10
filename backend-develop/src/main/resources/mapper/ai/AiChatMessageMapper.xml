@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yumyumcoach.domain.ai.mapper.AiChatMessageMapper">
+
+    <resultMap id="ChatMessageMap" type="com.yumyumcoach.domain.ai.entity.AiChatMessage">
+        <id column="id" property="id"/>
+        <result column="email" property="email"/>
+        <result column="conversation_date" property="conversationDate"/>
+        <result column="role" property="role"/>
+        <result column="message" property="message"/>
+        <result column="request_context" property="requestContext"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.yumyumcoach.domain.ai.entity.AiChatMessage"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_chat_messages(email, conversation_date, role, message, request_context)
+        VALUES (#{email}, #{conversationDate}, #{role}, #{message}, #{requestContext})
+    </insert>
+
+    <select id="findByEmailAndDate" resultMap="ChatMessageMap">
+        SELECT *
+        FROM ai_chat_messages
+        WHERE email = #{email}
+          AND conversation_date = #{conversationDate}
+        ORDER BY created_at ASC, id ASC
+    </select>
+</mapper>

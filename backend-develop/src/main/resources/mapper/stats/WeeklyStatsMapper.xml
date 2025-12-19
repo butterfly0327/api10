@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yumyumcoach.domain.stats.mapper.WeeklyStatsMapper">
+
+    <resultMap id="DietStatMap" type="com.yumyumcoach.domain.stats.dto.WeeklyStatsResponse$DailyDietStat">
+        <id column="record_date" property="date"/>
+        <result column="day_name" property="dayOfWeek"/>
+        <result column="carbs" property="carbs"/>
+        <result column="protein" property="protein"/>
+        <result column="fat" property="fat"/>
+        <result column="calories" property="calories"/>
+    </resultMap>
+
+    <resultMap id="ExerciseStatMap" type="com.yumyumcoach.domain.stats.dto.WeeklyStatsResponse$DailyExerciseStat">
+        <id column="record_date" property="date"/>
+        <result column="day_name" property="dayOfWeek"/>
+        <result column="duration_minutes" property="durationMinutes"/>
+        <result column="calories" property="calories"/>
+    </resultMap>
+
+    <select id="aggregateDietByDate" resultMap="DietStatMap">
+        SELECT DATE(dr.record_date)                                          AS record_date,
+               DATE_FORMAT(DATE(dr.record_date), '%Y-%m-%d')                  AS day_key,
+               DAYNAME(DATE(CONVERT_TZ(dr.record_date, '+00:00', '+09:00'))) AS day_name,
+               IFNULL(SUM(f.carbohydrate * IFNULL(df.serve_count, 1)), 0)     AS carbs,
+               IFNULL(SUM(f.protein * IFNULL(df.serve_count, 1)), 0)          AS protein,
+               IFNULL(SUM(f.fat * IFNULL(df.serve_count, 1)), 0)              AS fat,
+               IFNULL(SUM(f.calories * IFNULL(df.serve_count, 1)), 0)         AS calories
+        FROM diet_records dr
+                 LEFT JOIN diet_foods df ON dr.id = df.diet_id
+                 LEFT JOIN foods f ON df.food_id = f.id
+        WHERE dr.email = #{email}
+          AND DATE(dr.record_date) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY DATE(dr.record_date)
+        ORDER BY record_date
+    </select>
+
+    <select id="aggregateExerciseByDate" resultMap="ExerciseStatMap">
+        SELECT er.record_date                                              AS record_date,
+               DAYNAME(DATE(CONVERT_TZ(er.record_date, '+00:00', '+09:00'))) AS day_name,
+               IFNULL(SUM(er.duration_minutes), 0)                           AS duration_minutes,
+               IFNULL(SUM(er.calories), 0)                                    AS calories
+        FROM exercise_records er
+        WHERE er.email = #{email}
+          AND er.record_date BETWEEN #{startDate} AND #{endDate}
+        GROUP BY er.record_date
+        ORDER BY er.record_date
+    </select>
+</mapper>
