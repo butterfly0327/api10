@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yumyumcoach.domain.exercise.mapper.ExerciseRecordMapper">
+    <resultMap id="ExerciseRecordWithExerciseMap" type="com.yumyumcoach.domain.exercise.entity.ExerciseRecordWithExercise">
+        <id column="id" property="id"/>
+        <result column="exercise_id" property="exerciseId"/>
+        <result column="exercise_name" property="exerciseName"/>
+        <result column="met" property="met"/>
+        <result column="intensity_level" property="intensityLevel"/>
+        <result column="type" property="type"/>
+        <result column="record_date" property="recordDate"/>
+        <result column="duration_minutes" property="durationMinutes"/>
+        <result column="calories" property="calories"/>
+    </resultMap>
+
+    <select id="findDetailByIdAndEmail" parameterType="map" resultMap="ExerciseRecordWithExerciseMap">
+        SELECT er.id,
+               er.exercise_id,
+               e.name AS exercise_name,
+               e.met,
+               e.intensity_level,
+               e.type,
+               er.record_date,
+               er.duration_minutes,
+               er.calories
+        FROM exercise_records er
+                 JOIN exercises e ON er.exercise_id = e.id
+        WHERE er.id = #{recordId}
+          AND er.email = #{email}
+    </select>
+
+    <select id="findByEmailAndDate" parameterType="map" resultMap="ExerciseRecordWithExerciseMap">
+        SELECT er.id,
+               er.exercise_id,
+               e.name AS exercise_name,
+               e.met,
+               e.intensity_level,
+               e.type,
+               er.record_date,
+               er.duration_minutes,
+               er.calories
+        FROM exercise_records er
+                 JOIN exercises e ON er.exercise_id = e.id
+        WHERE er.email = #{email}
+          AND er.record_date = #{recordDate}
+        ORDER BY er.id DESC
+    </select>
+
+    <insert id="insert" parameterType="com.yumyumcoach.domain.exercise.entity.ExerciseRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO exercise_records (email, exercise_id, record_date, duration_minutes, calories)
+        VALUES (#{email}, #{exerciseId}, #{recordDate}, #{durationMinutes}, #{calories})
+    </insert>
+
+    <update id="update" parameterType="com.yumyumcoach.domain.exercise.entity.ExerciseRecord">
+        UPDATE exercise_records
+        SET exercise_id      = #{exerciseId},
+            record_date      = #{recordDate},
+            duration_minutes = #{durationMinutes},
+            calories         = #{calories}
+        WHERE id = #{id}
+          AND email = #{email}
+    </update>
+
+    <delete id="delete" parameterType="map">
+        DELETE
+        FROM exercise_records
+        WHERE id = #{recordId}
+          AND email = #{email}
+    </delete>
+
+    <select id="findEmailByRecordId" resultType="string">
+        SELECT email
+        FROM exercise_records
+        WHERE id = #{recordId}
+    </select>
+</mapper>

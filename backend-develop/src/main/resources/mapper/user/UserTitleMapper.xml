@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yumyumcoach.domain.user.mapper.UserTitleMapper">
+
+    <!-- 내가 보유한 타이틀인지 여부 -->
+    <select id="ownsTitle" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM account_titles
+            WHERE email = #{email}
+              AND title_id = #{titleId}
+        )
+    </select>
+
+    <!-- 현재 대표 타이틀 조회 -->
+    <select id="findCurrentTitle" resultType="com.yumyumcoach.domain.user.dto.MyTitleResponse">
+        SELECT
+            p.display_title_id AS currentTitleId,
+            t.name AS currentTitleName
+        FROM profiles p
+        LEFT JOIN titles t
+        ON t.id = p.display_title_id
+        WHERE p.email = #{email}
+    </select>
+
+    <!-- 내가 보유한 타이틀 목록 -->
+    <!-- MyPageResponse 내부 static class는 '$'로 참조 -->
+    <select id="findMyTitles" resultType="com.yumyumcoach.domain.user.dto.MyPageResponse$TitleItem">
+        SELECT
+            t.id AS titleId,
+            t.name AS name,
+            t.description AS description
+        FROM account_titles at
+        JOIN titles t
+        ON t.id = at.title_id
+        WHERE at.email = #{email}
+        ORDER BY at.obtained_at DESC
+    </select>
+
+</mapper>

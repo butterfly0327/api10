@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yumyumcoach.domain.challenge.mapper.ChallengeRuleMapper">
+
+    <resultMap id="ChallengeRuleResultMap"
+               type="com.yumyumcoach.domain.challenge.entity.ChallengeRule">
+        <id     property="challengeId"        column="challenge_id"/>
+        <id     property="difficultyCode"     column="difficulty_code"/>
+        <result property="requiredSuccessDays" column="required_success_days"/>
+        <result property="dailyTargetValue"   column="daily_target_value"/>
+    </resultMap>
+
+    <select id="findByChallengeIdAndDifficulty"
+            resultMap="ChallengeRuleResultMap">
+        SELECT
+            challenge_id,
+            difficulty_code,
+            required_success_days,
+            daily_target_value
+        FROM challenge_rules
+        WHERE challenge_id = #{challengeId}
+          AND difficulty_code = #{difficultyCode}
+    </select>
+
+</mapper>

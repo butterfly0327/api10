@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yumyumcoach.domain.community.mapper.PostMapper">
+    <resultMap id="PostResultMap" type="com.yumyumcoach.domain.community.entity.Post">
+        <id column="id" property="id"/>
+        <result column="author_email" property="authorEmail"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="likes" property="likes"/>
+    </resultMap>
+
+    <!-- 단건 조회 -->
+    <select id="findById" parameterType="long" resultMap="PostResultMap">
+        SELECT id, author_email, title, content, created_at, likes
+        FROM posts
+        WHERE id = #{postId}
+    </select>
+
+    <!-- 목록 조회 (페이징) -->
+    <select id="findPosts" parameterType="map" resultMap="PostResultMap">
+        SELECT id, author_email, title, content, created_at, likes
+        FROM posts
+        <!-- [TODO] keyword, sort 나중에 조건 추가 -->
+        ORDER BY created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 전체 게시글 개수 -->
+    <select id="countPosts" parameterType="map" resultType="long">
+        SELECT COUNT(*)
+        FROM posts
+        <!-- [TODO] keyword 조건 나중에 추가 -->
+    </select>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.yumyumcoach.domain.community.entity.Post" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO posts (
+            author_email, title, content, created_at, likes
+        )
+        VALUES (
+           #{authorEmail}, #{title}, #{content}, #{createdAt}, #{likes}
+               )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.yumyumcoach.domain.community.entity.Post">
+        UPDATE posts
+        SET title = #{title}, content = #{content}
+        WHERE id = #{id}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM posts
+        WHERE id = #{postId}
+    </delete>
+
+    <!-- 좋아요 +1 -->
+    <update id="increaseLikes" parameterType="long">
+        UPDATE posts
+        SET likes = likes + 1
+        WHERE id = #{postId}
+    </update>
+
+    <!-- 좋아요 -1 (0 아래로 안 내려가게) -->
+    <update id="decreaseLikes" parameterType="long">
+        UPDATE posts
+        SET likes = IF(likes > 0, likes - 1, 0)
+        WHERE id = #{postId}
+    </update>
+</mapper>

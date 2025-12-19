@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yumyumcoach.domain.diet.mapper.DietRecordMapper">
+
+    <!-- 식단 상세 + 음식 리스트 -->
+    <resultMap id="DietRecordDetailMap" type="com.yumyumcoach.domain.diet.dto.DietRecordDto">
+        <id column="id" property="id"/>
+        <result column="record_date" property="recordDate"/>
+        <result column="meal_type" property="mealType"/>
+
+        <collection property="items" ofType="com.yumyumcoach.domain.diet.dto.DietFoodDto">
+            <id column="diet_food_id" property="id"/>
+            <result column="diet_id" property="dietId"/>
+            <result column="food_id" property="foodId"/>
+            <result column="food_name" property="foodName"/>
+            <result column="serve_count" property="serveCount"/>
+            <result column="order_index" property="orderIndex"/>
+            <result column="calories" property="calories"/>
+            <result column="carbohydrate" property="carbs"/>
+            <result column="protein" property="protein"/>
+            <result column="fat" property="fat"/>
+        </collection>
+    </resultMap>
+
+    <!-- 식단 단건 상세 -->
+    <select id="selectDietRecordDetail" resultMap="DietRecordDetailMap">
+        SELECT
+            dr.id,
+            DATE(dr.record_date) AS record_date,
+            dr.meal_type,
+            df.id          AS diet_food_id,
+            df.diet_id,
+            df.food_id,
+            f.name         AS food_name,
+            df.serve_count,
+            df.order_index,
+            f.calories,
+            f.carbohydrate,
+            f.protein,
+            f.fat
+        FROM diet_records dr
+                 LEFT JOIN diet_foods df ON dr.id = df.diet_id
+                 LEFT JOIN foods f ON df.food_id = f.id
+        WHERE dr.id = #{id}
+          AND dr.email = #{email}
+        ORDER BY df.order_index
+    </select>
+
+    <!-- 사용자별 식단 목록 (페이징) -->
+    <select id="selectDietRecordsByUser" resultType="com.yumyumcoach.domain.diet.dto.DietRecordDto">
+        SELECT
+            id,
+            DATE(record_date) AS recordDate,
+            meal_type         AS mealType
+        FROM diet_records
+        WHERE email = #{email}
+        ORDER BY record_date DESC, id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 사용자별 특정 날짜 식단 목록 (페이징) -->
+    <select id="selectDietRecordsByUserAndDate" resultType="com.yumyumcoach.domain.diet.dto.DietRecordDto">
+        SELECT
+            id,
+            DATE(record_date) AS recordDate,
+            meal_type         AS mealType
+        FROM diet_records
+        WHERE email = #{email}
+          AND DATE(record_date) = #{recordDate}
+        ORDER BY record_date DESC, id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 식단 추가 -->
+    <insert id="insertDietRecord"
+            parameterType="map"
+            useGeneratedKeys="true"
+            keyProperty="req.id">
+        INSERT INTO diet_records (
+            email,
+            record_date,
+            meal_type
+        ) VALUES (
+                     #{email},
+                     #{req.recordDate},
+                     #{req.mealType}
+                 )
+    </insert>
+
+    <!-- 식단 수정 (소유자 체크까지 같이) -->
+    <update id="updateDietRecord" parameterType="map">
+        UPDATE diet_records
+        SET
+            record_date = #{req.recordDate},
+            meal_type   = #{req.mealType}
+        WHERE id = #{id}
+          AND email = #{email}
+    </update>
+
+    <!-- 식단 삭제 -->
+    <delete id="deleteDietRecord" parameterType="map">
+        DELETE FROM diet_records
+        WHERE id = #{id}
+          AND email = #{email}
+    </delete>
+
+    <select id="existsById" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM diet_records WHERE id = #{id})
+    </select>
+
+    <select id="existsByIdAndEmail" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM diet_records WHERE id = #{id} AND email = #{email})
+    </select>
+
+</mapper>
+
