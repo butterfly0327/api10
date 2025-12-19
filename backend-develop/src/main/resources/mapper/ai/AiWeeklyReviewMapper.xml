@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yumyumcoach.domain.ai.mapper.AiWeeklyReviewMapper">
+
+    <resultMap id="NutritionReviewMap" type="com.yumyumcoach.domain.ai.entity.AiWeeklyNutritionReview">
+        <id column="id" property="id"/>
+        <result column="email" property="email"/>
+        <result column="target_date" property="targetDate"/>
+        <result column="week_start_date" property="weekStartDate"/>
+        <result column="week_end_date" property="weekEndDate"/>
+        <result column="model" property="model"/>
+        <result column="nutrition_assessment" property="nutritionAssessment"/>
+        <result column="guidance" property="guidance"/>
+        <result column="request_context" property="requestContext"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <resultMap id="ExerciseReviewMap" type="com.yumyumcoach.domain.ai.entity.AiWeeklyExerciseReview">
+        <id column="id" property="id"/>
+        <result column="email" property="email"/>
+        <result column="target_date" property="targetDate"/>
+        <result column="week_start_date" property="weekStartDate"/>
+        <result column="week_end_date" property="weekEndDate"/>
+        <result column="model" property="model"/>
+        <result column="exercise_assessment" property="exerciseAssessment"/>
+        <result column="recommendation" property="recommendation"/>
+        <result column="request_context" property="requestContext"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="findNutritionByEmailAndDate" resultMap="NutritionReviewMap">
+        SELECT *
+        FROM ai_weekly_nutrition_reviews
+        WHERE email = #{email}
+          AND target_date = #{targetDate}
+        LIMIT 1
+    </select>
+
+    <insert id="upsertNutrition" parameterType="com.yumyumcoach.domain.ai.entity.AiWeeklyNutritionReview"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_weekly_nutrition_reviews(
+            email, target_date, week_start_date, week_end_date, model,
+            nutrition_assessment, guidance, request_context)
+        VALUES (#{email}, #{targetDate}, #{weekStartDate}, #{weekEndDate}, #{model},
+                #{nutritionAssessment}, #{guidance}, #{requestContext})
+        ON DUPLICATE KEY UPDATE
+            week_start_date      = VALUES(week_start_date),
+            week_end_date        = VALUES(week_end_date),
+            model                = VALUES(model),
+            nutrition_assessment = VALUES(nutrition_assessment),
+            guidance             = VALUES(guidance),
+            request_context      = VALUES(request_context)
+    </insert>
+
+    <select id="findExerciseByEmailAndDate" resultMap="ExerciseReviewMap">
+        SELECT *
+        FROM ai_weekly_exercise_reviews
+        WHERE email = #{email}
+          AND target_date = #{targetDate}
+        LIMIT 1
+    </select>
+
+    <insert id="upsertExercise" parameterType="com.yumyumcoach.domain.ai.entity.AiWeeklyExerciseReview"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_weekly_exercise_reviews(
+            email, target_date, week_start_date, week_end_date, model,
+            exercise_assessment, recommendation, request_context)
+        VALUES (#{email}, #{targetDate}, #{weekStartDate}, #{weekEndDate}, #{model},
+                #{exerciseAssessment}, #{recommendation}, #{requestContext})
+        ON DUPLICATE KEY UPDATE
+            week_start_date     = VALUES(week_start_date),
+            week_end_date       = VALUES(week_end_date),
+            model               = VALUES(model),
+            exercise_assessment = VALUES(exercise_assessment),
+            recommendation      = VALUES(recommendation),
+            request_context     = VALUES(request_context)
+    </insert>
+</mapper>

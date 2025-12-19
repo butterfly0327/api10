@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yumyumcoach.domain.ai.mapper.AiMealPlanMapper">
+
+    <resultMap id="MealPlanMap" type="com.yumyumcoach.domain.ai.entity.AiDailyMealPlan">
+        <id column="id" property="id"/>
+        <result column="email" property="email"/>
+        <result column="plan_date" property="planDate"/>
+        <result column="model" property="model"/>
+        <result column="breakfast_menu" property="breakfastMenu"/>
+        <result column="breakfast_calories" property="breakfastCalories"/>
+        <result column="breakfast_summary" property="breakfastSummary"/>
+        <result column="lunch_menu" property="lunchMenu"/>
+        <result column="lunch_calories" property="lunchCalories"/>
+        <result column="lunch_summary" property="lunchSummary"/>
+        <result column="dinner_menu" property="dinnerMenu"/>
+        <result column="dinner_calories" property="dinnerCalories"/>
+        <result column="dinner_summary" property="dinnerSummary"/>
+        <result column="raw_response" property="rawResponse"/>
+        <result column="request_context" property="requestContext"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="findByEmailAndDate" resultMap="MealPlanMap">
+        SELECT *
+        FROM ai_daily_meal_plans
+        WHERE email = #{email}
+          AND plan_date = #{planDate}
+        LIMIT 1
+    </select>
+
+    <insert id="upsertMealPlan" parameterType="com.yumyumcoach.domain.ai.entity.AiDailyMealPlan"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_daily_meal_plans(
+            email, plan_date, model,
+            breakfast_menu, breakfast_calories, breakfast_summary,
+            lunch_menu, lunch_calories, lunch_summary,
+            dinner_menu, dinner_calories, dinner_summary,
+            raw_response, request_context)
+        VALUES (#{email}, #{planDate}, #{model},
+                #{breakfastMenu}, #{breakfastCalories}, #{breakfastSummary},
+                #{lunchMenu}, #{lunchCalories}, #{lunchSummary},
+                #{dinnerMenu}, #{dinnerCalories}, #{dinnerSummary},
+                #{rawResponse}, #{requestContext})
+        ON DUPLICATE KEY UPDATE
+            model             = VALUES(model),
+            breakfast_menu    = VALUES(breakfast_menu),
+            breakfast_calories= VALUES(breakfast_calories),
+            breakfast_summary = VALUES(breakfast_summary),
+            lunch_menu        = VALUES(lunch_menu),
+            lunch_calories    = VALUES(lunch_calories),
+            lunch_summary     = VALUES(lunch_summary),
+            dinner_menu       = VALUES(dinner_menu),
+            dinner_calories   = VALUES(dinner_calories),
+            dinner_summary    = VALUES(dinner_summary),
+            raw_response      = VALUES(raw_response),
+            request_context   = VALUES(request_context)
+    </insert>
+</mapper>
